@@ -2,7 +2,8 @@
 
 <img src="https://img.shields.io/badge/builded-arch-t?style=for-the-badge&logo=arch-linux&color=darkgreen&logoColor=green&labelColor=black">  <img src="https://img.shields.io/badge/category-wireless-t?style=for-the-badge&logo=python&color=darkred&logoColor=darkred&labelColor=black"><br>
 Wireless pentesting and social engineering tools
-![image](https://github.com/mrx04programmer/fakerAP/assets/46001898/a8f524d3-a7e8-4bd6-895b-5d45c89eea6a)
+![imagen](https://github.com/mrx04programmer/fakerAP/assets/46001898/5f0da4d2-744c-4ef3-92bb-c187f6f5880b)
+
 
 ## Use
 1. First option and set the network interface<br>
