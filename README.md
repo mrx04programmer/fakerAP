@@ -1,4 +1,5 @@
 # fakerAP 👹
+###### Version v.0.5 ES🇪🇸  & EN🇺🇸
 
 <img src="https://img.shields.io/badge/builded-arch-t?style=for-the-badge&logo=arch-linux&color=darkgreen&logoColor=green&labelColor=black">  <img src="https://img.shields.io/badge/category-wireless-t?style=for-the-badge&logo=python&color=darkred&logoColor=darkred&labelColor=black"><br>
 Wireless pentesting and social engineering tools
