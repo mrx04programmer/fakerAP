@@ -2,9 +2,27 @@ import os
 import subprocess
 import getpass
 import platform
+from colorama import Fore, Style
+
+translations = {
+    'Bienvenido': 'Welcome',
+    'Nombre del AP (SSID): ': 'AP Name (SSID): ',
+    'Contraseña del AP (dejar vacío para red abierta): ': 'AP Password (leave empty for open network): ',
+    'No se encontraron interfaces de red disponibles.': 'No network interfaces available.',
+    'AP Falso ejecutándose': 'Fake AP running',
+    'AP Falso detenido': 'Fake AP stopped',
+    'Selecciona una opción:': 'Select an option:',
+    '1. Activar AP Falso': '1. Activate Fake AP',
+    '2. Desactivar AP Falso': '2. Deactivate Fake AP',
+    '3. Salir': '3. Exit',
+    'Opción: ': 'Option: ',
+    'Opción no válida, intenta de nuevo.': 'Invalid option, please try again.',
+}
+
+def translate(text):
+    return translations.get(text, text)
 
 def obtener_interfaz_disponible():
-    # Obtener interfaz de red disponible
     if platform.system() == 'Windows':
         output = subprocess.check_output('netsh wlan show interfaces').decode()
         for line in output.split('\n'):
@@ -16,7 +34,6 @@ def obtener_interfaz_disponible():
         return interfaces[0] if interfaces else None
 
 def configurar_red(interfaz):
-    # Habilitar interfaz de red
     if platform.system() == 'Windows':
         os.system(f'netsh interface set interface "{interfaz}" admin=enable')
         os.system(f'netsh interface ip set address "{interfaz}" static 192.168.1.1 255.255.255.0')
@@ -46,11 +63,9 @@ dhcp-range=192.168.1.2,192.168.1.30,255.255.255.0,12h
 ''')
 
 def iniciar_hostapd():
-    # Iniciar hostapd
     subprocess.Popen(['hostapd', 'hostapd.conf'])
 
 def iniciar_dnsmasq():
-    # Iniciar dnsmasq
     subprocess.Popen(['dnsmasq', '-C', 'dnsmasq.conf'])
 
 def detener_hostapd_dnsmasq():
@@ -60,22 +75,22 @@ def detener_hostapd_dnsmasq():
 def activar_ap():
     interfaz = obtener_interfaz_disponible()
     if not interfaz:
-        print('No se encontraron interfaces de red disponibles.')
+        print(Fore.RED + translate('No se encontraron interfaces de red disponibles.') + Style.RESET_ALL)
         return
 
-    ssid = input('Nombre del AP (SSID): ')
-    password = getpass.getpass('Contraseña del AP (dejar vacío para red abierta): ')
+    ssid = input(translate('Nombre del AP (SSID): '))
+    password = getpass.getpass(translate('Contraseña del AP (dejar vacío para red abierta): '))
 
     configurar_red(interfaz)
     crear_hostapd_conf(ssid, password)
     crear_dnsmasq_conf()
     iniciar_hostapd()
     iniciar_dnsmasq()
-    print('AP Falso ejecutándose')
+    print(Fore.GREEN + translate('AP Falso ejecutándose') + Style.RESET_ALL)
 
 def desactivar_ap():
     detener_hostapd_dnsmasq()
-    print('AP Falso detenido')
+    print(Fore.YELLOW + translate('AP Falso detenido') + Style.RESET_ALL)
 
 def imprimir_banner():
     banner = '''
@@ -88,7 +103,7 @@ def imprimir_banner():
 ⢰⡿⠁⢀⣴⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣦⡀⠈⢿⡆
 ⢺⡇⠀⣿⡿⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⢿⣿⠀⢸⡗ 
 ⠈⢿⣦⡉⠁⠈⠉⠛⠷⣶⣦⣤⣄⣀⣀⣠⣤⣴⣶⠾⠛⠉⠁⠈⢉⣴
-⠀⠀⠙⠻⣦⣄⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⣠⣴⠟⠋⠀⠀
+⠀⠀⠙⠻⣦⣄⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⣠⣴⠟⠋⠀⠀
 ⠀⠀⠀⠀⠈⠻⣿⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⡶⣿⡟⠁⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⢹⡇⠉⠙⠻⠷⢶⣶⣶⡶⠾⠟⠋⠉⢸⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠙⠻⣦⣤⣤⣀⣀⣀⣀⣠⣤⣴⠿⠋⠀⠀⠀⠀⠀⠀⠀
@@ -99,11 +114,11 @@ def imprimir_banner():
 def main():
     imprimir_banner()
     while True:
-        print('Selecciona una opción:')
-        print('1. Activar AP Falso')
-        print('2. Desactivar AP Falso')
-        print('3. Salir')
-        opcion = input('Opción: ')
+        print(Style.BRIGHT + translate('Selecciona una opción:') + Style.RESET_ALL)
+        print('1. ' + translate('Activar AP Falso'))
+        print('2. ' + translate('Desactivar AP Falso'))
+        print('3. ' + translate('Salir'))
+        opcion = input(translate('Opción: '))
 
         if opcion == '1':
             activar_ap()
@@ -112,7 +127,7 @@ def main():
         elif opcion == '3':
             break
         else:
-            print('Opción no válida, intenta de nuevo.')
+            print(Fore.RED + translate('Opción no válida, intenta de nuevo.') + Style.RESET_ALL)
 
 if __name__ == '__main__':
     main()
