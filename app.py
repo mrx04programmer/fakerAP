@@ -11,9 +11,9 @@ def obtener_interfaz_disponible():
             if 'Estado' in line and 'Conectado' in line:
                 return line.split(':')[1].strip()
     else:
-        output = subprocess.check_output(['ip', 'link', 'show']).decode()
-        interfaces = [line.split()[1][:-1] for line in output.split('\n') if 'state UP' in line]
-        return interfaces[0] if interfaces else None
+        os.system("ifconfig")
+        interfaz = input("Interfaz >> ")
+        return interfaz
 
 def configurar_red(interfaz):
     # Habilitar interfaz de red
@@ -24,24 +24,33 @@ def configurar_red(interfaz):
         os.system(f'ip link set {interfaz} up')
         os.system(f'ip addr add 192.168.1.1/24 dev {interfaz}')
 
-def crear_hostapd_conf(ssid, password):
+def crear_hostapd_conf(ssid, password, seguridad, canal, interfaz):
     with open('hostapd.conf', 'w') as f:
-        f.write(f'''
+        if seguridad == "1":
+            conf = f'''
 interface={interfaz}
 driver=nl80211
 ssid={ssid}
-channel=6
+channel={canal}
+'''
+        elif seguridad == "2":
+            conf = f'''
+interface={interfaz}
+driver=nl80211
+ssid={ssid}
+channel={canal}
 wpa=2
 wpa_passphrase={password}
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP CCMP
 rsn_pairwise=CCMP
-''')
+'''
+        f.write(conf)
 
-def crear_dnsmasq_conf():
+def crear_dnsmasq_conf(interfaz):
     with open('dnsmasq.conf', 'w') as f:
-        f.write('''
-interface=wlan0
+        f.write(f'''
+interface={interfaz}
 dhcp-range=192.168.1.2,192.168.1.30,255.255.255.0,12h
 ''')
 
@@ -64,11 +73,16 @@ def activar_ap():
         return
 
     ssid = input('Nombre del AP (SSID): ')
-    password = getpass.getpass('Contraseña del AP (dejar vacío para red abierta): ')
+    seguridad = input('Tipo de seguridad (1: Abierta, 2: WPA2): ')
+    canal = input('Canal (1-11): ')
+    password = ''
+    
+    if seguridad == "2":
+        password = getpass.getpass('Contraseña del AP: ')
 
     configurar_red(interfaz)
-    crear_hostapd_conf(ssid, password)
-    crear_dnsmasq_conf()
+    crear_hostapd_conf(ssid, password, seguridad, canal, interfaz)
+    crear_dnsmasq_conf(interfaz)
     iniciar_hostapd()
     iniciar_dnsmasq()
     print('AP Falso ejecutándose')
@@ -87,10 +101,10 @@ def imprimir_banner():
 ⠀⣠⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣄⠀    I am not responsible for any use that may be made of it.
 ⢰⡿⠁⢀⣴⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣦⡀⠈⢿⡆
 ⢺⡇⠀⣿⡿⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⢿⣿⠀⢸⡗ 
-⠈⢿⣦⡉⠁⠈⠉⠛⠷⣶⣦⣤⣄⣀⣀⣠⣤⣴⣶⠾⠛⠉⠁⠈⢉⣴
+⠈⢿⣦⡉⠁⠈⠉⠛⠷⣶⣦⣤⣄⣀⣀⣀⣠⣤⣴⣶⠾⠛⠉⠁⠈⢉⣴
 ⠀⠀⠙⠻⣦⣄⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⣠⣴⠟⠋⠀⠀
-⠀⠀⠀⠀⠈⠻⣿⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⡶⣿⡟⠁⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⢹⡇⠉⠙⠻⠷⢶⣶⣶⡶⠾⠟⠋⠉⢸⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠈⠻⣿⣶⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⡶⣿⡟⠁⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢹⡇⠉⠙⠻⠷⢶⣶⣶⡶⠾⠟⠋⠉⠉⢸⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠙⠻⣦⣤⣤⣀⣀⣀⣀⣠⣤⣴⠿⠋⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀By Mrx04programmer
 '''
