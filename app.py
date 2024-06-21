@@ -136,7 +136,7 @@ def main():
 
     imprimir_banner(lang)
     while True:
-        print(Style.BRIGHT + translate('Selecciona una opción:') + Style.RESET_ALL)
+        print(translate('Selecciona una opción:', lang))
         print('1. ' + translate('Activar AP Falso', lang))
         print('2. ' + translate('Desactivar AP Falso', lang))
         print('3. ' + translate('Salir', lang))
