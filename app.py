@@ -5,22 +5,38 @@ import platform
 from colorama import Fore, Style
 
 translations = {
-    'Bienvenido': 'Welcome',
-    'Nombre del AP (SSID): ': 'AP Name (SSID): ',
-    'Contraseña del AP (dejar vacío para red abierta): ': 'AP Password (leave empty for open network): ',
-    'No se encontraron interfaces de red disponibles.': 'No network interfaces available.',
-    'AP Falso ejecutándose': 'Fake AP running',
-    'AP Falso detenido': 'Fake AP stopped',
-    'Selecciona una opción:': 'Select an option:',
-    '1. Activar AP Falso': '1. Activate Fake AP',
-    '2. Desactivar AP Falso': '2. Deactivate Fake AP',
-    '3. Salir': '3. Exit',
-    'Opción: ': 'Option: ',
-    'Opción no válida, intenta de nuevo.': 'Invalid option, please try again.',
+    'es': {
+        'Bienvenido': 'Bienvenido',
+        'Nombre del AP (SSID): ': 'Nombre del AP (SSID): ',
+        'Contraseña del AP (dejar vacío para red abierta): ': 'Contraseña del AP (dejar vacío para red abierta): ',
+        'No se encontraron interfaces de red disponibles.': 'No se encontraron interfaces de red disponibles.',
+        'AP Falso ejecutándose': 'AP Falso ejecutándose',
+        'AP Falso detenido': 'AP Falso detenido',
+        'Selecciona una opción:': 'Selecciona una opción:',
+        '1. Activar AP Falso': '1. Activar AP Falso',
+        '2. Desactivar AP Falso': '2. Desactivar AP Falso',
+        '3. Salir': '3. Salir',
+        'Opción: ': 'Opción: ',
+        'Opción no válida, intenta de nuevo.': 'Opción no válida, intenta de nuevo.',
+    },
+    'en': {
+        'Bienvenido': 'Welcome',
+        'Nombre del AP (SSID): ': 'AP Name (SSID): ',
+        'Contraseña del AP (dejar vacío para red abierta): ': 'AP Password (leave empty for open network): ',
+        'No se encontraron interfaces de red disponibles.': 'No network interfaces available.',
+        'AP Falso ejecutándose': 'Fake AP running',
+        'AP Falso detenido': 'Fake AP stopped',
+        'Selecciona una opción:': 'Select an option:',
+        '1. Activar AP Falso': '1. Activate Fake AP',
+        '2. Desactivar AP Falso': '2. Deactivate Fake AP',
+        '3. Salir': '3. Exit',
+        'Opción: ': 'Option: ',
+        'Opción no válida, intenta de nuevo.': 'Invalid option, please try again.',
+    }
 }
 
-def translate(text):
-    return translations.get(text, text)
+def translate(text, lang='es'):
+    return translations[lang].get(text, text)
 
 def obtener_interfaz_disponible():
     if platform.system() == 'Windows':
@@ -41,7 +57,7 @@ def configurar_red(interfaz):
         os.system(f'ip link set {interfaz} up')
         os.system(f'ip addr add 192.168.1.1/24 dev {interfaz}')
 
-def crear_hostapd_conf(ssid, password):
+def crear_hostapd_conf(ssid, password, interfaz):
     with open('hostapd.conf', 'w') as f:
         f.write(f'''
 interface={interfaz}
@@ -82,7 +98,7 @@ def activar_ap():
     password = getpass.getpass(translate('Contraseña del AP (dejar vacío para red abierta): '))
 
     configurar_red(interfaz)
-    crear_hostapd_conf(ssid, password)
+    crear_hostapd_conf(ssid, password, interfaz)
     crear_dnsmasq_conf()
     iniciar_hostapd()
     iniciar_dnsmasq()
@@ -92,7 +108,7 @@ def desactivar_ap():
     detener_hostapd_dnsmasq()
     print(Fore.YELLOW + translate('AP Falso detenido') + Style.RESET_ALL)
 
-def imprimir_banner():
+def imprimir_banner(lang='es'):
     banner = '''
 ⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⢀⣴⡾⠛⠛⠻⣶⣶⡿⠛⠛⢿⣶⣶⠟⠛⠛⢷⣦⡀⠀⠀⠀⠀
@@ -109,16 +125,22 @@ def imprimir_banner():
 ⠀⠀⠀⠀⠀⠀⠀⠙⠻⣦⣤⣤⣀⣀⣀⣀⣠⣤⣴⠿⠋⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀By Mrx04programmer
 '''
+    print(Fore.GREEN + translate('Bienvenido') + Style.RESET_ALL if lang == 'es' else Fore.GREEN + translate('Welcome') + Style.RESET_ALL)
     print(banner)
 
 def main():
-    imprimir_banner()
+    lang = input('Select language (es/en): ')
+    while lang not in ['es', 'en']:
+        print('Invalid language. Please select es or en.')
+        lang = input('Select language (es/en): ')
+
+    imprimir_banner(lang)
     while True:
         print(Style.BRIGHT + translate('Selecciona una opción:') + Style.RESET_ALL)
-        print('1. ' + translate('Activar AP Falso'))
-        print('2. ' + translate('Desactivar AP Falso'))
-        print('3. ' + translate('Salir'))
-        opcion = input(translate('Opción: '))
+        print('1. ' + translate('Activar AP Falso', lang))
+        print('2. ' + translate('Desactivar AP Falso', lang))
+        print('3. ' + translate('Salir', lang))
+        opcion = input(translate('Opción: ', lang))
 
         if opcion == '1':
             activar_ap()
@@ -127,7 +149,7 @@ def main():
         elif opcion == '3':
             break
         else:
-            print(Fore.RED + translate('Opción no válida, intenta de nuevo.') + Style.RESET_ALL)
+            print(Fore.RED + translate('Opción no válida, intenta de nuevo.', lang) + Style.RESET_ALL)
 
 if __name__ == '__main__':
     main()
