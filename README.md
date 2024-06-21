@@ -23,6 +23,8 @@ Wireless pentesting and social engineering tools
 
 ## Disable AP 👹🚫
 Second option.
-![imagen](https://github.com/mrx04programmer/fakerAP/assets/46001898/0e3fc14c-83b8-4b7f-b740-09b3251eb80f)
+![imagen](https://github.com/mrx04programmer/fakerAP/assets/46001898/7e1cd302-7af3-446e-9db1-060594258911)
+
+
 
 
